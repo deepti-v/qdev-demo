@@ -30,44 +30,32 @@ A serverless application for uploading and retrieving photos using AWS services.
 
 ### Option 1: Deploy with AWS CDK
 
-1. Clone this repository:
-   ```
-   git clone https://github.com/yourusername/photo-app.git
-   cd photo-app
-   ```
-
-2. Install CDK dependencies:
+1. Install CDK dependencies:
    ```
    cd cdk
    pip install -r requirements.txt
    ```
 
-3. Deploy the application:
+2. Deploy the application:
    ```
    cdk deploy
    ```
 
-4. Note the API Gateway URL from the CDK outputs.
+3. Note the API Gateway URL from the CDK outputs.
 
 ### Option 2: Deploy with AWS SAM
 
-1. Clone this repository:
-   ```
-   git clone https://github.com/yourusername/photo-app.git
-   cd photo-app
-   ```
-
-2. Build the SAM application:
+1. Build the SAM application:
    ```
    sam build
    ```
 
-3. Deploy the application:
+2. Deploy the application:
    ```
    sam deploy --guided
    ```
 
-4. Follow the prompts and note the API Gateway URL from the outputs.
+3. Follow the prompts and note the API Gateway URL from the outputs.
 
 ### Configure the Frontend
 

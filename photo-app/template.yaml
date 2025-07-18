@@ -1,0 +1,127 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  Photo App - Serverless application for uploading and retrieving photos
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Tracing: Active
+    Environment:
+      Variables:
+        PHOTOS_TABLE: !Ref PhotosTable
+        PHOTOS_BUCKET: !Ref PhotosBucket
+        URL_EXPIRATION: 3600
+
+Resources:
+  # S3 Bucket for storing photos
+  PhotosBucket:
+    Type: AWS::S3::Bucket
+    Properties:
+      BucketName: !Sub 'photo-app-bucket-${AWS::AccountId}'
+      PublicAccessBlockConfiguration:
+        BlockPublicAcls: true
+        BlockPublicPolicy: true
+        IgnorePublicAcls: true
+        RestrictPublicBuckets: true
+      VersioningConfiguration:
+        Status: Enabled
+      BucketEncryption:
+        ServerSideEncryptionConfiguration:
+          - ServerSideEncryptionByDefault:
+              SSEAlgorithm: AES256
+
+  # DynamoDB table for photo metadata
+  PhotosTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      TableName: Photos
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: photoId
+          AttributeType: S
+      KeySchema:
+        - AttributeName: photoId
+          KeyType: HASH
+
+  # Lambda function for uploading photos
+  UploadPhotoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/upload_photo/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      Policies:
+        - S3CrudPolicy:
+            BucketName: !Ref PhotosBucket
+        - DynamoDBCrudPolicy:
+            TableName: !Ref PhotosTable
+      Events:
+        UploadPhoto:
+          Type: HttpApi
+          Properties:
+            Path: /photos
+            Method: POST
+            ApiId: !Ref PhotosApi
+
+  # Lambda function for retrieving photos
+  GetPhotoFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: src/get_photo/
+      Handler: app.lambda_handler
+      Runtime: python3.9
+      Architectures:
+        - x86_64
+      MemorySize: 128
+      Timeout: 10
+      Policies:
+        - S3ReadPolicy:
+            BucketName: !Ref PhotosBucket
+        - DynamoDBReadPolicy:
+            TableName: !Ref PhotosTable
+      Events:
+        GetPhoto:
+          Type: HttpApi
+          Properties:
+            Path: /photos/{photoId}
+            Method: GET
+            ApiId: !Ref PhotosApi
+
+  # API Gateway HTTP API
+  PhotosApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      CorsConfiguration:
+        AllowOrigins:
+          - '*'
+        AllowHeaders:
+          - 'Content-Type'
+        AllowMethods:
+          - GET
+          - POST
+          - OPTIONS
+
+Outputs:
+  PhotosApi:
+    Description: "API Gateway endpoint URL for Prod stage for Photo App"
+    Value: !Sub "https://${PhotosApi}.execute-api.${AWS::Region}.amazonaws.com"
+  
+  UploadPhotoFunction:
+    Description: "Upload Photo Lambda Function ARN"
+    Value: !GetAtt UploadPhotoFunction.Arn
+  
+  GetPhotoFunction:
+    Description: "Get Photo Lambda Function ARN"
+    Value: !GetAtt GetPhotoFunction.Arn
+  
+  PhotosBucket:
+    Description: "S3 Bucket for storing photos"
+    Value: !Ref PhotosBucket
+  
+  PhotosTable:
+    Description: "DynamoDB Table for storing photo metadata"
+    Value: !Ref PhotosTable

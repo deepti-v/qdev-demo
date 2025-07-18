@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Photo App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Photo App</h1>
+            <p>Upload and view your photos</p>
+        </header>
+
+        <section class="upload-section">
+            <h2>Upload a Photo</h2>
+            <form id="upload-form">
+                <div class="form-group">
+                    <label for="file-input">Select a photo:</label>
+                    <input type="file" id="file-input" accept="image/*" required>
+                </div>
+                <div class="preview-container">
+                    <img id="preview-image" src="#" alt="Preview" style="display: none;">
+                </div>
+                <button type="submit" id="upload-button">Upload Photo</button>
+            </form>
+            <div id="upload-status" class="status"></div>
+        </section>
+
+        <section class="gallery-section">
+            <h2>Your Photos</h2>
+            <div class="input-group">
+                <label for="photo-id">Enter Photo ID:</label>
+                <input type="text" id="photo-id" placeholder="Enter photo ID">
+                <button id="get-photo-button">Get Photo</button>
+            </div>
+            <div id="photo-result" class="status"></div>
+            <div class="photo-container">
+                <img id="retrieved-image" src="#" alt="Retrieved Photo" style="display: none;">
+                <div class="photo-info" id="photo-info"></div>
+            </div>
+        </section>
+    </div>
+
+    <footer>
+        <p>Serverless Photo App - AWS CDK Demo</p>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>
